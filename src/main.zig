@@ -2,6 +2,8 @@ const std = @import("std");
 const rl = @import("raylib");
 const gui = @import("raygui");
 const gui_render = @import("gui_components.zig");
+const grd = @import("grid.zig");
+const app = @import("app_properties.zig");
 
 pub fn main() !void {
     // Initialization
@@ -9,7 +11,11 @@ pub fn main() !void {
     const screenWidth = 792;
     const screenHeight = 456;
 
-    var app_properties = gui_render.AppProperties{};
+    var app_properties = app.AppProperties{};
+
+    const allocator = std.heap.page_allocator;
+    var grid = try grd.GameOfLifeGrid().init(allocator, 46, 34);
+    defer grid.deinit();
 
     rl.initWindow(screenWidth, screenHeight, "Conways Game Of Life");
     defer rl.closeWindow(); // Close window and OpenGL context
@@ -35,7 +41,7 @@ pub fn main() !void {
         // Draw controls
         gui_render.renderBackground(&app_properties);
         gui_render.renderComponents(&app_properties);
-
+        gui_render.renderGrid(&grid, &app_properties);
         //----------------------------------------------------------------------------------
     }
 }
