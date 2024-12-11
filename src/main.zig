@@ -4,6 +4,7 @@ const gui = @import("raygui");
 const gui_render = @import("gui_components.zig");
 const grd = @import("grid.zig");
 const app = @import("app_properties.zig");
+const builtin = @import("builtin");
 
 pub fn main() !void {
     // Initialization
@@ -13,7 +14,7 @@ pub fn main() !void {
 
     var app_properties = app.AppProperties{};
 
-    const allocator = std.heap.page_allocator;
+    const allocator = std.heap.c_allocator;
     var grid = try grd.GameOfLifeGrid().init(allocator, 46, 34);
     defer grid.deinit();
 
