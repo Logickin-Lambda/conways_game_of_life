@@ -14,7 +14,8 @@ const side_panel_rec: rl.Rectangle = rl.Rectangle.init(0, 0, 792, 456);
 const full_panel_rec: rl.Rectangle = rl.Rectangle.init(0, 0, 192, 456);
 const dimension_label_rec: rl.Rectangle = rl.Rectangle.init(16, 128, 120, 24);
 const header_label_rec: rl.Rectangle = rl.Rectangle.init(16, 16, 144, 24);
-const random_btn_rec: rl.Rectangle = rl.Rectangle.init(16, 152, 160, 24);
+const pattern_picker_rec: rl.Rectangle = rl.Rectangle.init(16, 152, 112, 24);
+const create_btn_rec: rl.Rectangle = rl.Rectangle.init(128, 152, 48, 24);
 const speed_slider_rec: rl.Rectangle = rl.Rectangle.init(16, 104, 160, 24);
 const speed_label_rec: rl.Rectangle = rl.Rectangle.init(16, 80, 120, 24);
 const cell_c_picker_rec: rl.Rectangle = rl.Rectangle.init(16, 208, 136, 96);
@@ -30,9 +31,6 @@ pub fn renderComponents(app_properties: *app.AppProperties) void {
     _ = gui.guiLabel(dimension_label_rec, "Random Patterns");
     _ = gui.guiLabel(header_label_rec, "Consway's Game of Life");
 
-    // if (gui.guiValueBox(random_btn_rec, "x:  ", &size_x_value, 5, 96, size_x_editMode) > 0) size_x_editMode = !size_x_editMode;
-    _ = gui.guiButton(random_btn_rec, "Generate!");
-
     _ = gui.guiSliderBar(speed_slider_rec, "", "", &app_properties.*.speed_value, 0.005, 1);
     _ = gui.guiLabel(speed_label_rec, "Speed");
 
@@ -46,6 +44,14 @@ pub fn renderComponents(app_properties: *app.AppProperties) void {
 
     _ = gui.guiToggle(play_toggle_btn_rec, toggle_btn_text, &app_properties.*.play_toggle_active);
     _ = gui.guiPanel(life_drawable_area, null);
+
+    // _ = gui.guiButton(pattern_picker_rec, "Generate!");
+    const active = &app_properties.active_dropdown;
+    if (gui.guiDropdownBox(pattern_picker_rec, "Blank;Random;Glider Gun;Clocks;Space Ships", &app_properties.pattern_mode, active.*) > 0) {
+        active.* = !active.*;
+    }
+
+    app_properties.require_redraw = gui.guiButton(create_btn_rec, "Create") != 0;
 }
 
 pub fn renderBackground(app_properties: *app.AppProperties) void {

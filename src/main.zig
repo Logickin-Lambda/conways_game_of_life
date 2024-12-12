@@ -50,6 +50,10 @@ pub fn main() !void {
         if (app_properties.play_toggle_active) {
             grid.update(&app_properties);
         }
+
+        if (app_properties.require_redraw) {
+            grid.generatePattern(&app_properties);
+        }
     }
 }
 

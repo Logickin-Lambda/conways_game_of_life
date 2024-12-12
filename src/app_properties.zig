@@ -10,4 +10,7 @@ pub const AppProperties = struct {
     background_color_inverted: bool = false,
     play_toggle_active: bool = false,
     game_tick: f32 = 0,
+    active_dropdown: bool = false,
+    pattern_mode: i32 = 0,
+    require_redraw: bool = false,
 };

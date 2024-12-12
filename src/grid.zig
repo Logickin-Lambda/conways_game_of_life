@@ -70,8 +70,6 @@ pub fn GameOfLifeGrid() type {
             const speed_slider = app_properties.speed_value - 1;
             const speed = -(speed_slider * speed_slider) + 1;
 
-            std.debug.print("game tick: {d}\n", .{app_properties.game_tick});
-
             app_properties.game_tick += speed;
 
             while (app_properties.game_tick > 1) {
@@ -83,7 +81,7 @@ pub fn GameOfLifeGrid() type {
         fn step(self: *Self) void {
             for (0..self.size_y) |y| {
                 for (0..self.size_x) |x| {
-                    self.temp[y][x] = self.is_alive(x, y, self.grid[y][x]);
+                    self.temp[y][x] = self.isAlive(x, y, self.grid[y][x]);
                 }
             }
 
@@ -94,8 +92,8 @@ pub fn GameOfLifeGrid() type {
             }
         }
 
-        fn is_alive(self: *Self, pos_x: usize, pos_y: usize, cell_status: bool) bool {
-            const neighbours = self.get_neighbor_cells(pos_x, pos_y);
+        fn isAlive(self: *Self, pos_x: usize, pos_y: usize, cell_status: bool) bool {
+            const neighbours = self.getNeighborCells(pos_x, pos_y);
 
             var live_count: i32 = 0;
             for (neighbours) |neighbour| {
@@ -111,7 +109,7 @@ pub fn GameOfLifeGrid() type {
             }
         }
 
-        fn get_neighbor_cells(self: *Self, pos_x: usize, pos_y: usize) [8]bool {
+        fn getNeighborCells(self: *Self, pos_x: usize, pos_y: usize) [8]bool {
             var neighbours: [8]bool = undefined;
 
             // extract the neighbors from top left to bottom right
@@ -143,6 +141,23 @@ pub fn GameOfLifeGrid() type {
             }
 
             return result;
+        }
+
+        pub fn generatePattern(self: *Self, app_properties: *app.AppProperties) void {
+            switch (app_properties.pattern_mode) {
+                0 => self.clearBoard(),
+                else => {},
+            }
+
+            app_properties.*.require_redraw = false;
+        }
+
+        fn clearBoard(self: *Self) void {
+            for (0..self.size_y) |y| {
+                for (0..self.size_x) |x| {
+                    self.grid[y][x] = false;
+                }
+            }
         }
     };
 }
