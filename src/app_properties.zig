@@ -9,5 +9,5 @@ pub const AppProperties = struct {
     background_color: rl.Color = rl.Color.init(0, 0, 0, 0),
     background_color_inverted: bool = false,
     play_toggle_active: bool = false,
-    game_tick: i32 = 0,
+    game_tick: f32 = 0,
 };

@@ -33,7 +33,7 @@ pub fn renderComponents(app_properties: *app.AppProperties) void {
     // if (gui.guiValueBox(random_btn_rec, "x:  ", &size_x_value, 5, 96, size_x_editMode) > 0) size_x_editMode = !size_x_editMode;
     _ = gui.guiButton(random_btn_rec, "Generate!");
 
-    _ = gui.guiSliderBar(speed_slider_rec, "", "", &app_properties.*.speed_value, 1, 60);
+    _ = gui.guiSliderBar(speed_slider_rec, "", "", &app_properties.*.speed_value, 0.005, 1);
     _ = gui.guiLabel(speed_label_rec, "Speed");
 
     _ = gui.guiColorPicker(cell_c_picker_rec, "", &app_properties.*.cells_color);
@@ -45,7 +45,7 @@ pub fn renderComponents(app_properties: *app.AppProperties) void {
     const toggle_btn_text: [*c]const u8 = if (app_properties.*.play_toggle_active) @as([*c]const u8, @ptrCast("Playing")) else @as([*c]const u8, @ptrCast("Stopped"));
 
     _ = gui.guiToggle(play_toggle_btn_rec, toggle_btn_text, &app_properties.*.play_toggle_active);
-    // _ = gui.guiPanel(life_drawable_area, null);
+    _ = gui.guiPanel(life_drawable_area, null);
 }
 
 pub fn renderBackground(app_properties: *app.AppProperties) void {
@@ -100,7 +100,6 @@ fn guiCell(size: f32, pos_x: f32, pos_y: f32, active: *bool, app_properties: *ap
 
         rl.drawRectangleRec(rect_shadow, shadow_pressed);
         rl.drawRectangleRec(rect, color_pressed);
-        std.debug.print("print rect normal\n", .{});
     } else {
         var color_focused = app_properties.cells_color;
         color_focused.a = color_focused.a >> 1;
@@ -110,8 +109,6 @@ fn guiCell(size: f32, pos_x: f32, pos_y: f32, active: *bool, app_properties: *ap
 
         rl.drawRectangleRec(rect_shadow, shadow_pressed);
         rl.drawRectangleRec(rect, color_pressed);
-
-        std.debug.print("print rect other\n", .{});
     }
 
     return active.*;

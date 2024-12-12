@@ -35,7 +35,6 @@ pub fn main() !void {
         // Draw
         //----------------------------------------------------------------------------------
         rl.beginDrawing();
-        defer rl.endDrawing();
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
@@ -43,7 +42,14 @@ pub fn main() !void {
         gui_render.renderBackground(&app_properties);
         gui_render.renderComponents(&app_properties);
         gui_render.renderGrid(&grid, &app_properties);
+        rl.endDrawing();
         //----------------------------------------------------------------------------------
+
+        // Postprocess after the graphical contents are plotted
+        //----------------------------------------------------------------------------------
+        if (app_properties.play_toggle_active) {
+            grid.update(&app_properties);
+        }
     }
 }
 
