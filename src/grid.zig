@@ -1,6 +1,7 @@
 const std = @import("std");
 const app = @import("app_properties.zig");
 const builtin = @import("builtin");
+const template = @import("pattern_template.zig");
 
 const Axis = enum { X, Y };
 
@@ -68,7 +69,7 @@ pub fn GameOfLifeGrid() type {
 
             // Handles game tick updates
             const speed_slider = app_properties.speed_value - 1;
-            const speed = -(speed_slider * speed_slider) + 1;
+            const speed = 2 * (-(speed_slider * speed_slider) + 1);
 
             app_properties.game_tick += speed;
 
@@ -146,6 +147,11 @@ pub fn GameOfLifeGrid() type {
         pub fn generatePattern(self: *Self, app_properties: *app.AppProperties) void {
             switch (app_properties.pattern_mode) {
                 0 => self.clearBoard(),
+                1 => self.randomPattern(),
+                2 => self.genericTemplate(template.getGliderGunPattern),
+                3 => self.genericTemplate(template.getClocksPattern),
+                4 => self.genericTemplate(template.getSpaceShipsPattern),
+                5 => self.genericTemplate(template.getAbout),
                 else => {},
             }
 
@@ -156,6 +162,25 @@ pub fn GameOfLifeGrid() type {
             for (0..self.size_y) |y| {
                 for (0..self.size_x) |x| {
                     self.grid[y][x] = false;
+                }
+            }
+        }
+
+        fn randomPattern(self: *Self) void {
+            for (0..self.size_y) |y| {
+                for (0..self.size_x) |x| {
+                    const rand = std.crypto.random.uintLessThan(u8, 9);
+                    self.grid[y][x] = if (rand >= 6) true else false;
+                }
+            }
+        }
+
+        fn genericTemplate(self: *Self, func: fn () [34][46]bool) void {
+            const gliderGunTemplate = func();
+
+            for (0..self.size_y) |y| {
+                for (0..self.size_x) |x| {
+                    self.grid[y][x] = gliderGunTemplate[y][x];
                 }
             }
         }

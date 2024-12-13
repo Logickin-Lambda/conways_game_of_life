@@ -12,10 +12,15 @@ pub fn main() !void {
     const screenWidth = 792;
     const screenHeight = 456;
 
+    const rand_num: u8 = std.crypto.random.uintLessThan(u8, 9);
+    _ = rand_num;
+
     var app_properties = app.AppProperties{};
+    app_properties.initialize_colour();
 
     const allocator = std.heap.c_allocator;
     var grid = try grd.GameOfLifeGrid().init(allocator, 46, 34);
+    grid.generatePattern(&app_properties);
     defer grid.deinit();
 
     rl.initWindow(screenWidth, screenHeight, "Conways Game Of Life");
