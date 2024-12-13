@@ -151,7 +151,7 @@ pub fn GameOfLifeGrid() type {
                 2 => self.genericTemplate(template.getGliderGunPattern),
                 3 => self.genericTemplate(template.getClocksPattern),
                 4 => self.genericTemplate(template.getSpaceShipsPattern),
-                5 => self.genericTemplate(template.getAbout),
+                5 => self.genericTemplate(template.getAuthor),
                 else => {},
             }
 
@@ -175,12 +175,14 @@ pub fn GameOfLifeGrid() type {
             }
         }
 
-        fn genericTemplate(self: *Self, func: fn () [34][46]bool) void {
-            const gliderGunTemplate = func();
+        fn genericTemplate(self: *Self, func: fn () [34]i64) void {
+            const template_rows = func();
 
             for (0..self.size_y) |y| {
+                const template_cols = template.decode(template_rows[y]);
+
                 for (0..self.size_x) |x| {
-                    self.grid[y][x] = gliderGunTemplate[y][x];
+                    self.grid[y][x] = template_cols[x];
                 }
             }
         }
