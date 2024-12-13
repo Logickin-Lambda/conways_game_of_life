@@ -29,25 +29,33 @@ pub fn renderComponents(app_properties: *app.AppProperties) void {
     const background_color: i32 = app_properties.*.background_color.toInt();
     gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiDefaultProperty.background_color), background_color);
 
-    darkThemeDetection(app_properties);
+    app_properties.background_color_inverted = darkThemeDetection(app_properties.background_color, 128);
+    app_properties.cells_color_inverted = darkThemeDetection(app_properties.cells_color, 40);
+
+    renderLabels(app_properties);
+    renderColorPickers(app_properties);
+    renderControlsWithStyle(app_properties);
+}
+
+fn renderLabels(app_properties: *app.AppProperties) void {
     if (app_properties.*.background_color_inverted) {
         gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.text_color_normal), @as(i32, @bitCast(@as(u32, 0x686868ff))));
     } else {
         gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.text_color_normal), @as(i32, @bitCast(@as(u32, 0xbababaff))));
     }
-
     _ = gui.guiPanel(side_panel_rec, null);
     _ = gui.guiPanel(full_panel_rec, null);
-    _ = gui.guiPanel(life_drawable_area, null);
+    // _ = gui.guiPanel(life_drawable_area, null);
 
     _ = gui.guiLabel(dimension_label_rec, "Random Patterns");
     _ = gui.guiLabel(header_label_rec, "Consway's Game of Life");
     _ = gui.guiLabel(cell_c_label_rec, "Cells Color");
     _ = gui.guiLabel(back_c_label_rec, "Backgound Color");
 
-    _ = gui.guiSliderBar(speed_slider_rec, "", "", &app_properties.*.speed_value, 0.005, 1);
     _ = gui.guiLabel(speed_label_rec, "Speed");
+}
 
+fn renderColorPickers(app_properties: *app.AppProperties) void {
     const cell_original = app_properties.*.cells_color;
     const back_original = app_properties.*.background_color;
 
@@ -59,14 +67,32 @@ pub fn renderComponents(app_properties: *app.AppProperties) void {
         app_properties.*.cells_color = cell_original;
         app_properties.*.background_color = back_original;
     }
+}
 
-    // The following text are located in buttons, no colour change needed.
-    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.text_color_normal), @as(i32, @bitCast(@as(u32, 0x686868ff))));
-    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiDefaultProperty.background_color), @as(i32, @bitCast(@as(u32, 0xf5f5f5ff))));
+fn renderControlsWithStyle(app_properties: *app.AppProperties) void {
+    // Generic theming for the controls
+    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.text_color_normal), @as(i32, @bitCast(@as(u32, 0xbababaff))));
+
+    const color = if (!app_properties.cells_color_inverted and darkThemeDetection(app_properties.background_color, 64)) app_properties.background_color else app_properties.cells_color;
+
+    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.base_color_pressed), color.toInt());
+    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.base_color_focused), color_multiplication(color, 0.8).toInt());
+    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.base_color_normal), color_multiplication(color, 0.4).toInt());
+    gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.base_color_normal), color_multiplication(color, 0.4).toInt());
+
+    // Slider Bar
+    _ = gui.guiSliderBar(speed_slider_rec, "", "", &app_properties.*.speed_value, 0.005, 1);
+
+    // Toggle Button
+    // if (app_properties.*.play_toggle_active) {
+    //     gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.text_color_normal), @as(i32, @bitCast(@as(u32, 0x686868ff))));
+    // } else {
+    //     gui.guiSetStyle(gui.GuiControl.default, @intFromEnum(gui.GuiControlProperty.text_color_normal), @as(i32, @bitCast(@as(u32, 0xbababaff))));
+    // }
     const toggle_btn_text: [*c]const u8 = if (app_properties.*.play_toggle_active) @as([*c]const u8, @ptrCast("Playing")) else @as([*c]const u8, @ptrCast("Stopped"));
-
     _ = gui.guiToggle(play_toggle_btn_rec, toggle_btn_text, &app_properties.*.play_toggle_active);
 
+    // Dropdown
     const active = &app_properties.active_dropdown;
     if (gui.guiDropdownBox(pattern_picker_rec, "Blank;Random;Glider Gun;Clocks;Space Ships; Author", &app_properties.pattern_mode, active.*) > 0) {
         active.* = !active.*;
@@ -159,11 +185,22 @@ fn shadow_color(color: rl.Color, active: *bool, app_properties: *app.AppProperti
 // This code is based on this answer from stackoverflow:
 // https://stackoverflow.com/questions/946544/good-text-foreground-color-for-a-given-background-color/946734#946734
 // if color inversion is required, it sets the background_color_inverted indicator to true
-fn darkThemeDetection(app_properties: *app.AppProperties) void {
-    const back_color = app_properties.*.background_color;
-    const r_power = @as(f32, @floatFromInt(back_color.r)) * 0.299;
-    const g_power = @as(f32, @floatFromInt(back_color.g)) * 0.587;
-    const b_power = @as(f32, @floatFromInt(back_color.b)) * 0.114;
+fn darkThemeDetection(color: rl.Color, threshold: f32) bool {
+    const r_power = @as(f32, @floatFromInt(color.r)) * 0.299;
+    const g_power = @as(f32, @floatFromInt(color.g)) * 0.587;
+    const b_power = @as(f32, @floatFromInt(color.b)) * 0.114;
 
-    app_properties.*.background_color_inverted = if (r_power + g_power + b_power > 128) true else false;
+    return if (r_power + g_power + b_power > threshold) true else false;
+}
+
+fn color_multiplication(color: rl.Color, multiple: f32) rl.Color {
+    var r = @as(f32, @floatFromInt(color.r)) * multiple;
+    var g = @as(f32, @floatFromInt(color.g)) * multiple;
+    var b = @as(f32, @floatFromInt(color.b)) * multiple;
+
+    r = if (r > 255) 255 else r;
+    g = if (g > 255) 255 else g;
+    b = if (b > 255) 255 else b;
+
+    return rl.Color.init(@as(u8, @intFromFloat(r)), @as(u8, @intFromFloat(g)), @as(u8, @intFromFloat(b)), color.a);
 }
